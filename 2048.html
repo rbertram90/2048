@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>2048</title>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="2048.js"></script>
+    <link type="text/css" href="2048.css" rel="stylesheet">
+</head>
+<body>
+
+    <section>
+        <h1>2048</h1>
+        <p>This is a quick implementation of the popular mobile game '2048'. The aim is to get the 2048 tile by combining matching tiles. Tiles are moved by either pressing the arrow buttons below or pressing the arrow buttons on your keyboard.</p>
+    </section>
+
+    <section id="solver">
+        <h2>CBA?</h2>
+        <p>The button below will automatically play the game for you using a stupidly simple algorithm. However don't expect it to reach 2048!</p>
+        
+        <button onclick="runSimpleSolve();">Run simple automated solver</button>
+        <button onclick="stopSimpleSolve();">Pause simple automated solver</button>
+    </section>
+    
+    <section>
+        <div id="game"></div>
+
+        <nav class="buttons">
+            <button onclick="swipeUp();" id="up">^</button>
+            <button onclick="swipeLeft();" id="left">&lt;</button>
+            <button onclick="swipeRight();" id="right">&gt;</button>
+            <button onclick="swipeDown();" id="down">v</button>
+        </nav>
+
+    </section>
+
+    <footer>
+        <a href="http://www.rbwebdesigns.co.uk">rbwebdesigns.co.uk</a>
+    </footer>
+
+    <script>
+        startGame();
+
+        var solver;
+
+        function runSimpleSolve() {
+            solver = setInterval(function() {
+                if (!swipeDown()) {
+                    if (!swipeLeft()) {
+                        if (!swipeRight()) {
+                            if (!swipeUp()) {
+                                clearInterval(solver);
+                                console.log('stopped');
+                            }
+                        }
+                    }
+                }
+            }, 100);
+        }
+
+        function stopSimpleSolve() {
+            clearInterval(solver);
+        }
+    </script>
+    
+</body>
+</html>

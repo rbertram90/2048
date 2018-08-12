@@ -1,0 +1,50 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+}
+section, footer {
+    margin: 20px;
+}
+#game {
+    width: 400px;
+    display: inline-block;
+}
+.cell {
+    font-family: arial;
+    background-color: #ccc;
+    display: inline-block;
+    height: 100px;
+    padding-top: 20px;
+    width: 100px;
+    text-align: center;
+    font-size: 40px;
+    box-sizing:border-box;
+    border-bottom: 5px solid #fff;
+    border-right: 5px solid #fff;
+}
+.buttons {
+    display: inline-block;
+    margin: 20px;
+}
+.buttons button {
+    padding:20px;
+    font-size: 40px;
+}
+button#up {
+    margin-left: 40px;
+    display:block;
+}
+button#down {
+    margin-left: 40px;
+    display:block;
+}
+
+#solver {
+    background-color: #f6f6f6;
+    padding: 20px;
+    margin: 20px 0;
+}
+#solver :first-child {
+    padding-top: 0;
+    margin-top: 0;
+}
