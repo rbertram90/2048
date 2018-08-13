@@ -1,16 +1,9 @@
-
-// Configuration variables
-
-// Container element for game
-var gameContainer = null;
-
-// Size of the grid (3 = 3x3, 4 = 4x4, etc.)
-var gridSize = 4;
-
-
-// System variable - not worth editing
+// System variables
 var board = [];
 var score = 0;
+var gridSize = 4; // Size of the grid (3 = 3x3, 4 = 4x4, etc.)
+var gameContainer = null; // Container element for game
+var gameStarted = false;
 
 /**
  * Output the HTML for the 2048 grid into DOM element #game.
@@ -298,7 +291,10 @@ function swipeRight() {
 /**
  * Initialise the game board.
  */
-function startGame(container) {
+function startGame(container, options) {
+
+    if (options.gridSize) gridSize = parseInt(options.gridSize);
+
     gameContainer = container;
     gameContainer.style.width = (100 * gridSize) + 'px';
 
@@ -311,12 +307,22 @@ function startGame(container) {
     spawnNumber();
     drawBoard();
     score = 0;
+    gameStarted = true;
 }
+
 
 /**
  * Allow game to be played with arrow keys on keyboard.
  */
-window.onkeyup = function(e) {
+window.addEventListener("keydown", function(e) {
+    var key = e.keyCode ? e.keyCode : e.which;
+    if([37, 38, 39, 40].indexOf(key) > -1) {
+        e.preventDefault();
+    }
+}, false);
+window.addEventListener("keyup", function(e) {
+    if (!gameStarted) return;
+
     var key = e.keyCode ? e.keyCode : e.which;
 
     if (key == 38) { // up
@@ -328,4 +334,4 @@ window.onkeyup = function(e) {
     } else if (key == 39) { // right
         swipeRight()
     }
-}
+}, false);

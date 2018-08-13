@@ -22,6 +22,25 @@
     </section>
     
     <section>
+        <div class="options">
+            <h3>Options</h3>
+            <p><i>Note: pressing 'play' whilst a game is in progress will start a new game!</i></p>
+            <label for="gridsize">Grid size</label>
+            <select id="gridsize">
+                <option value="3">3x3</option>
+                <option value="4" selected>4x4 (standard)</option>
+                <option value="5">5x5</option>
+                <option value="6">6x6</option>
+                <option value="7">7x7</option>
+                <option value="8">8x8</option>
+                <option value="9">9x9</option>
+                <option value="10">10x10</option>
+            </select>
+            <button onclick="runGame();" id="play">Play!</button>
+        </div>
+
+        <h3>Game</h3>
+
         <div id="game"></div>
 
         <nav class="buttons">
@@ -38,8 +57,12 @@
     </footer>
 
     <script>
-        startGame(document.getElementById('game'));
-
+        function runGame() {
+            startGame(document.getElementById('game'), {
+                gridSize: document.getElementById('gridsize').value
+            });
+        }
+        
         var solver;
 
         function runSimpleSolve() {
@@ -54,7 +77,7 @@
                         }
                     }
                 }
-            }, 100);
+            }, 50);
         }
 
         function stopSimpleSolve() {

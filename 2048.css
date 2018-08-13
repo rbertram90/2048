@@ -48,3 +48,17 @@ button#down {
     padding-top: 0;
     margin-top: 0;
 }
+
+#play {
+    background-color: hsl(351, 84%, 57%);
+    border: 0;
+    border-radius: 6px;
+    display: inline-block;
+    padding: 8px 24px;
+    color: #fff;
+    font-size: 1.6em;
+    cursor: pointer;
+}
+#play:hover {
+    background-color: hsl(351, 84%, 40%);
+}
