@@ -1,4 +1,15 @@
-var board;
+
+// Configuration variables
+
+// Container element for game
+var gameContainer = null;
+
+// Size of the grid (3 = 3x3, 4 = 4x4, etc.)
+var gridSize = 4;
+
+
+// System variable - not worth editing
+var board = [];
 var score = 0;
 
 /**
@@ -8,7 +19,7 @@ function drawBoard() {
     var content = "";
     var bgcolour = "";
     
-    for(var i = 0; i < 16; i++) {
+    for(var i = 0; i < Math.pow(gridSize, 2); i++) {
         switch(board[i]) {
             case 0: bgcolour = '#eee'; break;
             case 2: bgcolour = '#ccc'; break;
@@ -30,7 +41,7 @@ function drawBoard() {
         content += '<div class="cell" style="background-color:' + bgcolour + '">' + board[i] + '</div>';
     }
 
-    document.getElementById('game').innerHTML = '<div>Score:' + score + '</div>' + content;
+    gameContainer.innerHTML = '<div>Score:' + score + '</div>' + content;
 }
 
 /**
@@ -39,7 +50,7 @@ function drawBoard() {
 function spawnNumber() {
     var possiblePlaces = [];
 
-    for(var i = 0; i < 16; i++) {
+    for(var i = 0; i < Math.pow(gridSize, 2); i++) {
         if(board[i] == 0) {
             possiblePlaces.push(i);
         }
@@ -65,35 +76,44 @@ function swipeDown() {
     var lockedCells = [];
     var moveMade = false;
     
-    for(var i = 11; i >= 0; i--) {
+    // Check all cells below this one for occurances
+    // of the same number or blank spaces
+
+    // Loop through top 3 rows, starting from 3rd row
+    var startingIndex = Math.pow(gridSize, 2) - gridSize - 1;
+
+    for (var i = startingIndex; i >= 0; i--) {
         cellValue = board[i];
-        if(cellValue == 0) continue;
+        if (cellValue == 0) continue;
         
-        rowsToCheck = 3 - Math.floor(i / 4); // may need to check up to 3 rows below
+        // Check all rows above this one
+        // May need to check (up to) 3 rows above
+        rowsToCheck = (gridSize - 1) - Math.floor(i / gridSize);
         
-        for(var j = 1; j <= rowsToCheck; j++) {
+        for (var j = 1; j <= rowsToCheck; j++) {
         
-            belowCellValue = board[i + (4 * j)];
+            belowCellIndex = i + (gridSize * j);
+            belowCellValue = board[belowCellIndex];
         
-            if(belowCellValue == 0) {
-                board[i + (4 * j)] = cellValue;
-                if(j > 1)
-                    board[i + (4 * (j - 1))] = 0;
-                else
-                    board[i] = 0;
+            if (belowCellValue == 0) {
+                // Move it down
+                board[belowCellIndex] = cellValue;
+                // Replace current cell with 0
+                board[i + (gridSize * (j - 1))] = 0;
                 moveMade = true;
             }
-            else if(belowCellValue == cellValue) {
-                if(lockedCells.indexOf(i + (4 * j)) == -1) {
-                    board[i + (4 * j)] = cellValue * 2;
+            else if (belowCellValue == cellValue) {
+                if (lockedCells.indexOf(belowCellValue) == -1) {
+                    // Update grid
+                    board[belowCellIndex] = cellValue * 2;
+                    board[i + (gridSize * (j - 1))] = 0;
+
+                    // Increment score
                     score += cellValue * 2;
-                    
-                    if(j > 1)
-                        board[i + (4 * (j - 1))] = 0;
-                    else
-                        board[i] = 0;
-                        
-                    lockedCells.push(i + (4 * j));
+
+                    // Once combined, 'lock' the cell as don't
+                    // want to combine twice in one move
+                    lockedCells.push(belowCellIndex);
                 }
                 moveMade = true;
                 break;
@@ -123,35 +143,28 @@ function swipeUp() {
     var lockedCells = [];
     var moveMade = false;
     
-    for(var i = 4; i <= 15; i++) {
+    var finalIndex = Math.pow(gridSize, 2) - 1;
+    for (var i = gridSize; i <= finalIndex; i++) {
         cellValue = board[i];
-        if(cellValue == 0) continue;
+        if (cellValue == 0) continue;
         
-        rowsToCheck = Math.floor(i / 4); // may need to check up to 3 rows below
+        rowsToCheck = Math.floor(i / gridSize);
         
-        for(var j = 1; j <= rowsToCheck; j++) {
+        for (var j = 1; j <= rowsToCheck; j++) {
         
-            targetCellIndex = i - (4 * j);
+            targetCellIndex = i - (gridSize * j);
             belowCellValue = board[targetCellIndex];
         
-            if(belowCellValue == 0) {
+            if (belowCellValue == 0) {
                 board[targetCellIndex] = cellValue;
-                if(j > 1)
-                    board[i - (4 * (j - 1))] = 0;
-                else
-                    board[i] = 0;
+                board[i - (gridSize * (j - 1))] = 0;
                 moveMade = true;
             }
-            else if(belowCellValue == cellValue) {
+            else if (belowCellValue == cellValue) {
                 if(lockedCells.indexOf(targetCellIndex) == -1) {
                     board[targetCellIndex] = cellValue * 2;
+                    board[i - (gridSize * (j - 1))] = 0;
                     score += cellValue * 2;
-                    
-                    if(j > 1)
-                        board[i - (4 * (j - 1))] = 0;
-                    else
-                        board[i] = 0;
-                        
                     lockedCells.push(targetCellIndex);
                 }
                 moveMade = true;
@@ -182,41 +195,30 @@ function swipeLeft() {
     var lockedCells = [];
     var moveMade = false;
     
-    for(var h = 0; h <= 2; h++) {
-        for(var i = 1; i <= 15; i+=4) {
+    for (var h = 0; h < gridSize - 1; h++) {
+        for (var i = 1; i < Math.pow(gridSize, 2); i+=gridSize) {
             cellIndex = i + h;
             cellValue = board[cellIndex];
             
-            // Don't worry about 0 values
-            if(cellValue == 0) continue;
+            if (cellValue == 0) continue;
             
-            rowsToCheck = h+1; // (columns)
+            rowsToCheck = h+1; // (columns!)
             
-            for(var j = 1; j <= rowsToCheck; j++) {
+            for (var j = 1; j <= rowsToCheck; j++) {
                 
                 targetCellIndex = cellIndex - j;
                 belowCellValue = board[targetCellIndex];
             
-                if(belowCellValue == 0) {
+                if (belowCellValue == 0) {
                     board[targetCellIndex] = cellValue;
-                    if(j > 1) {
-                        board[cellIndex - (j - 1)] = 0;
-                    }
-                    else {
-                        board[cellIndex] = 0;
-                    }
+                    board[cellIndex - (j - 1)] = 0;
                     moveMade = true;
                 }
-                else if(belowCellValue == cellValue) {
-                    if(lockedCells.indexOf(targetCellIndex) == -1) {
+                else if (belowCellValue == cellValue) {
+                    if (lockedCells.indexOf(targetCellIndex) == -1) {
                         board[targetCellIndex] = cellValue * 2;
                         score += cellValue * 2;
-                        
-                        if(j > 1)
-                            board[cellIndex - (j - 1)] = 0;
-                        else
-                            board[cellIndex] = 0;
-                            
+                        board[cellIndex - (j - 1)] = 0;
                         lockedCells.push(targetCellIndex);
                     }
                     moveMade = true;
@@ -248,41 +250,31 @@ function swipeRight() {
     var lockedCells = [];
     var moveMade = false;
     
-    for(var h = 2; h >= 0; h--) {
-        for(var i = 0; i <= 14; i+=4) {
+    // column
+    for(var h = gridSize - 2; h >= 0; h--) {
+        // row
+        for(var i = 0; i < Math.pow(gridSize, 2) - 1; i+=gridSize) {
             cellIndex = i + h;
             cellValue = board[cellIndex];
+
+            if (cellValue == 0) continue;
             
-            // Don't worry about 0 values
-            if(cellValue == 0) continue;
+            rowsToCheck = (gridSize - 1) - h; // (columns)
             
-            rowsToCheck = 3-h; // (columns)
-            
-            for(var j = 1; j <= rowsToCheck; j++) {
-                
+            for (var j = 1; j <= rowsToCheck; j++) {
                 targetCellIndex = cellIndex + j;
                 belowCellValue = board[targetCellIndex];
             
-                if(belowCellValue == 0) {
+                if (belowCellValue == 0) {
                     board[targetCellIndex] = cellValue;
-                    if(j > 1) {
-                        board[cellIndex + (j - 1)] = 0;
-                    }
-                    else {
-                        board[cellIndex] = 0;
-                    }
+                    board[cellIndex + (j - 1)] = 0;
                     moveMade = true;
                 }
-                else if(belowCellValue == cellValue) {
-                    if(lockedCells.indexOf(targetCellIndex) == -1) {
+                else if (belowCellValue == cellValue) {
+                    if (lockedCells.indexOf(targetCellIndex) == -1) {
                         board[targetCellIndex] = cellValue * 2;
                         score += cellValue * 2;
-                        
-                        if(j > 1)
-                            board[cellIndex + (j - 1)] = 0;
-                        else
-                            board[cellIndex] = 0;
-                            
+                        board[cellIndex + (j - 1)] = 0;
                         lockedCells.push(targetCellIndex);
                     }
                     moveMade = true;
@@ -306,11 +298,15 @@ function swipeRight() {
 /**
  * Initialise the game board.
  */
-function startGame() {
-    board =[0,0,0,0,
-            0,0,0,0,
-            0,0,0,0,
-            0,0,0,0];
+function startGame(container) {
+    gameContainer = container;
+    gameContainer.style.width = (100 * gridSize) + 'px';
+
+    board = [];
+    for (var n = 0; n < Math.pow(gridSize, 2); n++) {
+        board.push(0);
+    }
+
     spawnNumber();
     spawnNumber();
     drawBoard();
