@@ -36,6 +36,16 @@
                 <option value="9">9x9</option>
                 <option value="10">10x10</option>
             </select>
+
+            <label for="spawnsize">Spawn upper value <a href="#" onclick="alert('Example:\nSelecting 8 will spawn either a 2, 4 or 8 tile after each move.\n\nThe chances of spawning an 8 are significantly lower than a 2 or 4.');">[?]</a></label>
+            <select id="spawnsize">
+                <option value="2">2</option>
+                <option value="4" selected>4 (standard)</option>
+                <option value="8">8</option>
+                <option value="16">16</option>
+                <option value="32">32</option>
+            </select>
+
             <button onclick="runGame();" id="play">Play!</button>
         </div>
 
@@ -55,7 +65,8 @@
 
         function runGame() {
             game = new twoZeroFourEight(document.getElementById('game'), {
-                gridSize: document.getElementById('gridsize').value
+                gridSize: document.getElementById('gridsize').value,
+                spawnSize: document.getElementById('spawnsize').value
             });
         }
 

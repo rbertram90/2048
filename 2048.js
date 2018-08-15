@@ -12,6 +12,7 @@ function twoZeroFourEight(container, options) {
     this.board = [];
     this.score = 0;
     this.gridSize = 4;
+    this.spawnSize = 4;
     this.gameStarted = false;
 
     var gridContainer = document.createElement("div");
@@ -28,6 +29,8 @@ function twoZeroFourEight(container, options) {
 
     if (options.gridSize) this.gridSize = parseInt(options.gridSize);
     gridContainer.style.width = (100 * this.gridSize) + 'px';
+
+    if (options.spawnSize) this.spawnSize = parseInt(options.spawnSize);
 
     this.addEventListeners();
     this.startGame();
@@ -148,7 +151,9 @@ twoZeroFourEight.prototype.drawBoard = function() {
 };
 
 /**
- * Place a 2 or 4 in a random empty space.
+ * Place a number in a random empty space.
+ * Usually this would be a 2 or 4 but player can choose to have
+ * higher numbers spawning.
  */
 twoZeroFourEight.prototype.spawnNumber = function() {
     var possiblePlaces = [];
@@ -160,10 +165,46 @@ twoZeroFourEight.prototype.spawnNumber = function() {
     }
     
     var squareNumber = Math.floor(possiblePlaces.length * Math.random());
-    
-    // 1 in 8 chance of getting a 4 rather than 2
-    var isAFour = Math.floor(8 * Math.random());
-    var number = (isAFour == 0) ? 4 : 2;
+    var number;
+    var random;
+
+    // chances
+    // 1/8 = 4
+    // 1/16 = 8
+    // 1/32 = 16
+    // 1/64 = 32
+    // etc.
+
+    switch(this.spawnSize) {
+        case 2:
+            // Always spawn 2's
+            number = 2;
+            break;
+        case 4:
+            // 1 in 8 chance of getting a 4 rather than 2
+            random = Math.floor(8 * Math.random());
+            number = (random == 0) ? 4 : 2;
+            break;
+        case 8:
+            random = Math.floor(16 * Math.random());
+            if (random < 2) number = 4;
+            else if (random < 3) number = 8;
+            else number = 2;
+        case 16:
+            random = Math.floor(32 * Math.random());
+            if (random < 4) number = 4;
+            else if (random < 6) number = 8;
+            else if (random < 7) number = 16;
+            else number = 2;
+        case 32:
+            random = Math.floor(64 * Math.random());
+            if (random < 8) number = 4;
+            else if (random < 12) number = 8;
+            else if (random < 14) number = 16;
+            else if (random < 15) number = 32;
+            else number = 2;
+    }
+
     
     this.board[possiblePlaces[squareNumber]] = number;
 };
