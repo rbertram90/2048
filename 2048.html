@@ -46,7 +46,7 @@
                 <option value="32">32</option>
             </select>
 
-            <button onclick="runGame();" id="play">Play!</button>
+            <button onclick="runGame();" id="play">New game</button>
         </div>
 
         <h3>Game</h3>
@@ -60,11 +60,11 @@
     </footer>
 
     <script>
-        var game = null;
+        var game = new twoZeroFourEight(document.getElementById('game'));
         var solver = null;
 
         function runGame() {
-            game = new twoZeroFourEight(document.getElementById('game'), {
+            game.newGame({
                 gridSize: document.getElementById('gridsize').value,
                 spawnSize: document.getElementById('spawnsize').value
             });

@@ -8,11 +8,12 @@
  *     - gridSize int
  *       Size of the grid (3 = 3x3, 4 = 4x4, etc.)
  */
-function twoZeroFourEight(container, options) {
-    this.board = [];
-    this.score = 0;
+function twoZeroFourEight(container) {
+    // Default options
     this.gridSize = 4;
     this.spawnSize = 4;
+
+    // Game state
     this.gameStarted = false;
 
     var gridContainer = document.createElement("div");
@@ -23,26 +24,37 @@ function twoZeroFourEight(container, options) {
 
     this.createButtons(buttonContainer);
 
+    var undoButton = document.createElement("button");
+    undoButton.id = "twoZeroFourEight_undo";
+    undoButton.innerHTML = "Undo";
+    container.appendChild(undoButton);
+
+    var redoButton = document.createElement("button");
+    redoButton.id = "twoZeroFourEight_redo";
+    redoButton.innerHTML = "Redo";
+    container.appendChild(redoButton);
+
     container.appendChild(gridContainer);
     container.appendChild(buttonContainer);
     this.gameContainer = gridContainer;
 
-    if (options.gridSize) this.gridSize = parseInt(options.gridSize);
-    gridContainer.style.width = (100 * this.gridSize) + 'px';
-
-    if (options.spawnSize) this.spawnSize = parseInt(options.spawnSize);
-
     this.addEventListeners();
-    this.startGame();
 }
 
 /**
  * Start a new game
  */
-twoZeroFourEight.prototype.startGame = function() {
+twoZeroFourEight.prototype.newGame = function(options) {
     this.score = 0;
+    this.currentTurn = 0;
     this.gameStarted = true;
     this.board = [];
+    this.turnHistory = [];
+
+    if (options.gridSize) this.gridSize = parseInt(options.gridSize);
+    this.gameContainer.style.width = (100 * this.gridSize) + 'px';
+
+    if (options.spawnSize) this.spawnSize = parseInt(options.spawnSize);
 
     for (var n = 0; n < Math.pow(this.gridSize, 2); n++) {
         this.board.push(0);
@@ -79,43 +91,96 @@ twoZeroFourEight.prototype.createButtons = function(container) {
 };
 
 /**
- * Allow game to be played with arrow keys on keyboard.
+ * Listen for events from keyboard and UI buttons.
  */
 twoZeroFourEight.prototype.addEventListeners = function() {
     var game = this;
 
     window.addEventListener("keydown", function(e) {
+        if (!game.gameStarted) return;
         var key = e.keyCode ? e.keyCode : e.which;
         if([37, 38, 39, 40].indexOf(key) > -1) {
             e.preventDefault();
-        }
-    }, false);
 
-    window.addEventListener("keyup", function(e) {
-        if (!game.gameStarted) return;
-
-        var key = e.keyCode ? e.keyCode : e.which;
-
-        if (key == 38) { // up
-            game.swipeUp()
-        } else if (key == 40) { // down
-            game.swipeDown()
-        } else if (key == 37) { // left
-            game.swipeLeft()
-        } else if (key == 39) { // right
-            game.swipeRight()
+            if (key == 38) { // up
+                game.runSwipe('up')
+            } else if (key == 40) { // down
+                game.runSwipe('down')
+            } else if (key == 37) { // left
+                game.runSwipe('left')
+            } else if (key == 39) { // right
+                game.runSwipe('right')
+            }
         }
     }, false);
 
     window.addEventListener("click", function(e){
         if (!e.target) return;
         switch(e.target.id) {
-            case 'twoZeroFourEight_move_up': game.swipeUp(); break;
-            case 'twoZeroFourEight_move_down': game.swipeDown(); break;
-            case 'twoZeroFourEight_move_left': game.swipeLeft(); break;
-            case 'twoZeroFourEight_move_right': game.swipeRight(); break;
+            case 'twoZeroFourEight_move_up': game.runSwipe('up'); break;
+            case 'twoZeroFourEight_move_down': game.runSwipe('down'); break;
+            case 'twoZeroFourEight_move_left': game.runSwipe('left'); break;
+            case 'twoZeroFourEight_move_right': game.runSwipe('right'); break;
+            case 'twoZeroFourEight_undo': game.undoMove(); break;
+            case 'twoZeroFourEight_redo': game.redoMove(); break;
+
         }
     });
+};
+
+/**
+ * Run move
+ */
+twoZeroFourEight.prototype.runSwipe = function(direction) {
+    var currentBoard = this.board.slice();
+    var changed = false;
+
+    switch (direction) {
+        case 'up': changed = game.swipeUp(); break;
+        case 'down': changed = game.swipeDown(); break;
+        case 'left': changed = game.swipeLeft(); break;
+        case 'right': changed = game.swipeRight(); break;
+    }
+
+    if (changed) {
+        this.logMove(currentBoard);
+        this.currentTurn++;
+    }
+};
+
+/**
+ * Undo last move
+ */
+twoZeroFourEight.prototype.undoMove = function() {
+    if (this.currentTurn == 0) return;
+    this.logMove();
+    this.board = this.turnHistory[this.currentTurn - 1];
+    this.currentTurn--;
+    this.drawBoard();
+};
+
+/**
+ * Redo move
+ */
+twoZeroFourEight.prototype.redoMove = function() {
+    if (this.currentTurn >= this.turnHistory.length - 1) return;
+    this.board = this.turnHistory[this.currentTurn + 1];
+    this.currentTurn++;
+    this.drawBoard();
+};
+
+/**
+ * Add an entry to the history
+ * 
+ * @param array board (optional)
+ */
+twoZeroFourEight.prototype.logMove = function(board) {
+    if (board) {
+        this.turnHistory[this.currentTurn] = board;
+    }
+    else {
+        this.turnHistory[this.currentTurn] = this.board.slice();
+    }
 };
 
 /**
