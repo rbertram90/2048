@@ -43,13 +43,6 @@
 
         <div id="game"></div>
 
-        <nav class="buttons">
-            <button onclick="swipeUp();" id="up">^</button>
-            <button onclick="swipeLeft();" id="left">&lt;</button>
-            <button onclick="swipeRight();" id="right">&gt;</button>
-            <button onclick="swipeDown();" id="down">v</button>
-        </nav>
-
     </section>
 
     <footer>
@@ -57,20 +50,23 @@
     </footer>
 
     <script>
+        var game = null;
+        var solver = null;
+
         function runGame() {
-            startGame(document.getElementById('game'), {
+            game = new twoZeroFourEight(document.getElementById('game'), {
                 gridSize: document.getElementById('gridsize').value
             });
         }
-        
-        var solver;
 
         function runSimpleSolve() {
+            if (!game) return;
+
             solver = setInterval(function() {
-                if (!swipeDown()) {
-                    if (!swipeLeft()) {
-                        if (!swipeRight()) {
-                            if (!swipeUp()) {
+                if (!game.swipeDown()) {
+                    if (!game.swipeLeft()) {
+                        if (!game.swipeRight()) {
+                            if (!game.swipeUp()) {
                                 clearInterval(solver);
                                 console.log('stopped');
                             }
