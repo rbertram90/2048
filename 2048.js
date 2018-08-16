@@ -56,12 +56,17 @@ twoZeroFourEight.prototype.newGame = function(options) {
 
     if (options.spawnSize) this.spawnSize = parseInt(options.spawnSize);
 
-    for (var n = 0; n < Math.pow(this.gridSize, 2); n++) {
-        this.board.push(0);
+    if (options.startingGrid) {
+        this.board = options.startingGrid;
+    }
+    else {
+        for (var n = 0; n < Math.pow(this.gridSize, 2); n++) {
+            this.board.push(0);
+        }
+        this.spawnNumber();
+        this.spawnNumber();
     }
 
-    this.spawnNumber();
-    this.spawnNumber();
     this.drawBoard();
 };
 

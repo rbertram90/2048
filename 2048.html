@@ -46,6 +46,10 @@
                 <option value="32">32</option>
             </select>
 
+            <h4>Starting scenarios</h4>
+            <label for="scenario1">None</label><input type="radio" name="scenario" selected value="0">
+            <div id="scenarios"></div>
+
             <button onclick="runGame();" id="play">New game</button>
         </div>
 
@@ -62,12 +66,42 @@
     <script>
         var game = new twoZeroFourEight(document.getElementById('game'));
         var solver = null;
+        var scenarioRadios = "";
+        var scenarios = [
+            {
+                label: "Chequers",
+                startingGrid: [0,0,0,0,64,128,64,128,128,64,128,64,0,0,0,0],
+                gridSize: 4,
+                spawnSize: 4
+            },
+            {
+                label: "2048 is just the start!",
+                startingGrid: [0,0,0,0,0,2048,0,0,0,0,0,0,0,0,0,0],
+                gridSize: 4,
+                spawnSize: 4
+            }
+        ];
+
+        for (var s = 0; s < scenarios.length; s++) {
+            scenarioRadios += "<label>" + scenarios[s].label + "</label><input type='radio' name='scenario' value='" + (s+1) +"'>";
+        }
+
+        document.getElementById("scenarios").innerHTML = scenarioRadios;
 
         function runGame() {
-            game.newGame({
-                gridSize: document.getElementById('gridsize').value,
-                spawnSize: document.getElementById('spawnsize').value
-            });
+            var startingGrid = false;
+
+            var scenario = document.querySelector('input[name="scenario"]:checked').value;
+            scenario = parseInt(scenario);
+            if (scenario > 0) {
+                game.newGame(scenarios[scenario - 1]);
+            }
+            else {
+                game.newGame({
+                    gridSize: document.getElementById('gridsize').value,
+                    spawnSize: document.getElementById('spawnsize').value
+                });
+            }
         }
 
         function runSimpleSolve() {
